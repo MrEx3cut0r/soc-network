@@ -1,9 +1,9 @@
-from sqlalchemy.orm import declarative_base, async_sessionmaker
-from sqlalchemy import create_async_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from typing import Callable
 
 Base = declarative_base()
-engine = create_async_engine('sqlite3:///db.db')
+engine = create_async_engine('postgresql+asyncpg:///db.db')
 session_maker = async_sessionmaker(engine, expire_on_commit=False)
 session = session_maker()
 

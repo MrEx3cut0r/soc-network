@@ -3,7 +3,7 @@ from dtos.user import user as user_dto
 from repositories.user_repository import user_repository, repository
 
 class user_service:
-    async def __init__(self, repository: user_repository) -> None:
+    def __init__(self, repository: user_repository):
         self.repository = repository
 
     async def create_user(self, model: user_dto) -> Optional[user_dto] | None:

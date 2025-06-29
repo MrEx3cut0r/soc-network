@@ -4,17 +4,16 @@ from dtos.user import user as user_dto
 from typing import Optional
 from fastapi import HTTPException
 from cryptography.fernet import Fernet
-import os
+from config import secret_key
 
-key = str(os.environ['secrey_key'])
-fernet = Fernet(key)
+fernet = Fernet(secret_key.encode())
 
 class user_repository:
-    async def __init__(self, session) -> None:
+    def __init__(self, session):
         self.session = session
     
     async def create_user(self, model: user_dto) -> Optional[user_dto] | None:
-        model.password = fernet.encrypt(model.password)
+        model.password = await fernet.encrypt(model.password)
         await self.session.add(model)
         await self.session.commit()
         return model
