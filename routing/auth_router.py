@@ -1,25 +1,27 @@
 from fastapi import APIRouter, Depends, Response
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from services.user_service import ret_user_service
 from dtos.user import user as user_dto
+from config import secret_key
 import jwt
 router = APIRouter()
 
 @router.post('/login')
-async def login(username, password, response: Response, service: ret_user_service = Depends()):
-    if await service.validate_password(username, password):
-        await response.set_cookie(key="access_jwt", value=jwt.encode({'username': username}), expires=datetime.now()+timedelta(hours=7))
+def login(username: str, password: str, response: Response, service: ret_user_service = Depends()):
+    if service.validate_password(username, password):
+        response.set_cookie(key="access_jwt", value=jwt.encode({'username': username}, secret_key, 'HS256'), expires=datetime.now(timezone.utc)+timedelta(hours=7))
         return True
     return False
 
 @router.post('/register')
-async def register(username, email, password, service: ret_user_service = Depends()):
-    user = user_dto(username=username, email=email, password=password)
+def register(username: str, email: str, password: str, service: ret_user_service = Depends()):
+    user = service.search_user(username)
     if user:
         return 'user already exists'
-    return await service.create_user(user)
+    new_user = user_dto(username=username, email=email, password=password)
+    return service.create_user(new_user)
 
 @router.post('/logout')
-async def logout(response: Response):
-    return await response.delete_cookie("access_jwt")
+def logout(response: Response):
+    return response.delete_cookie("access_jwt")
 

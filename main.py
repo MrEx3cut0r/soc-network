@@ -9,16 +9,14 @@ def app() -> FastAPI:
     app.include_router(auth_router)
 
     @app.on_event('startup')
-    async def startup():
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-
+    def startup():
+        Base.metadata.create_all(engine)
     @app.on_event('shutdown')
-    async def shutdown():
+    def shutdown():
         session.close()
     return app
 
 app = app()
 
 if __name__=="__main__":
-    uvicorn.run('main:app', reload=True)
+    uvicorn.run('main:app', host='localhost', port=8000, reload=True)
