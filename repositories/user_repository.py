@@ -22,21 +22,17 @@ class user_repository:
     @connection
     def delete_user(self, username: str) -> Optional[bool] | None:
         user = self.session.query(user_table).filter_by(username=username).first()
-
         if user:
             self.session.delete(user)
             self.session.commit()
             return True
-        
         raise HTTPException(status_code=404, detail="user not found")
         
     @connection
     def search_user(self, username: str) -> bool:
         user = self.session.query(user_table).filter_by(username=username).first()
-
         if user:
-            return True
-        
+            return True 
         return False
         
     @connection
@@ -45,8 +41,8 @@ class user_repository:
         if user:
             if fernet.decrypt(user.password).decode() == password:
                 return True
-            return False
-        
+            return False  
         raise HTTPException(status_code=404, detail='user not found')
 
-repository = user_repository(session)
+def ret_user_repository() -> user_repository:
+    return user_repository(session)

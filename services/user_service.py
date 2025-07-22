@@ -1,7 +1,6 @@
 from typing import Optional
 from dtos.user import user as user_dto
-from repositories.user_repository import user_repository, repository
-
+from repositories.user_repository import user_repository, ret_user_repository
 class user_service:
     def __init__(self, repository: user_repository):
         self.repository = repository
@@ -19,5 +18,5 @@ class user_service:
         return self.repository.validate_password(username, password)
     
 def ret_user_service() -> user_service:
-    return user_service(repository)
+    return user_service(ret_user_repository())
 
