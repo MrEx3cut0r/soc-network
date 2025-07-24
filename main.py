@@ -1,26 +1,43 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from routing.auth_router import router as auth_router
 from routing.posting_router import router as posting_router
 from database.session import Base, session,engine
 from middlewares.JwtMiddleware import JwtMiddleware
 import uvicorn
+import jwt
 
-jwtmiddleware = JwtMiddleware()
+denied = ("/api/post")
 
 def app() -> FastAPI:
     app = FastAPI(root_path='/api')
     app.include_router(auth_router)
-    app.include_router(posting_router)
-    app.add_middleware(BaseHTTPMiddleware, dispatch=jwtmiddleware)
+    app.include_router(posting_router)    
     
     @app.on_event('startup')
     def startup():
         Base.metadata.create_all(engine)
+        
     @app.on_event('shutdown')
     def shutdown():
         session.close()
+    
+    @app.middleware("http")
+    def JWTMiddleware(request: Request, call_next):
+        if request.url.path.startswith(denied):
+            try:
+                cookie = request.cookies.get("jwt")
+                if cookie == None:
+                    return HTTPException(status_code=401, detail="Unauthorized")
+                username = jwt.decode(cookie.encode(), secret_key, algorithm="HS256")
+                request.state.user = username
+            except jwt.PyJWTError:
+                raise HTTPException(status_code=401, detail="Unauthorized")
+        response = call_next()
+        return response
         
+    
+    
     return app
 
 app = app()

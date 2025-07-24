@@ -9,7 +9,7 @@ router = APIRouter(prefix="/auth")
 @router.post('/login')
 def login(username: str, password: str, response: Response, service: ret_user_service = Depends()):
     if service.validate_password(username, password):
-        response.set_cookie(key="jwt", value=jwt.encode({'username': username}, secret_key, 'HS256'), expires=datetime.now(timezone.utc)+timedelta(hours=7))
+        response.set_cookie(key="jwt", value=jwt.encode({'username': username}, secret_key, 'HS256'), expires=datetime.now(timezone.utc)+timedelta(hours=7), httponly=True)
         return True
     return False
 

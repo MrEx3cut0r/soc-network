@@ -15,6 +15,7 @@ class post_repository():
         self.session.add(posts_table(**post.dict()))
         self.session.commit()
         return post
+        
     @connection
     def delete(self, id: int) -> Optional[bool]:
         found_post = self.session.query(posts_table).filter_by(id=id).first()
@@ -23,12 +24,12 @@ class post_repository():
             self.session.commit()
             return True
         return False
-    """
+    
     @connection
     def findByUsername(self, username: str) -> List[Post]:
-        posts = self.session.query(posts_tables).filter_by(username=username).all()
+        posts = self.session.query(posts_table).filter_by(username=username).all()
         return posts
-    """
+    
     @connection
     def findById(self, id: int) -> Optional[Post]:
         post = self.session.query(posts_table).filter_by(id=id).first()
