@@ -4,6 +4,8 @@ from routing.auth_router import router as auth_router
 from routing.posting_router import router as posting_router
 from database.session import Base, session,engine
 from middlewares.JwtMiddleware import JwtMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.middleware.gzip import GZipMiddleware
 import uvicorn
 import jwt
 
@@ -13,7 +15,7 @@ def app() -> FastAPI:
     app = FastAPI(root_path='/api')
     app.include_router(auth_router)
     app.include_router(posting_router)    
-    
+    app.add_middleware(GZipMiddleware)
     @app.on_event('startup')
     def startup():
         Base.metadata.create_all(engine)
@@ -28,15 +30,18 @@ def app() -> FastAPI:
             try:
                 cookie = request.cookies.get("jwt")
                 if cookie == None:
-                    return HTTPException(status_code=401, detail="Unauthorized")
+                    raise HTTPException(status_code=401, detail="Unauthorized")
                 username = jwt.decode(cookie.encode(), secret_key, algorithm="HS256")
                 request.state.user = username
             except jwt.PyJWTError:
-                raise HTTPException(status_code=401, detail="Unauthorized")
-        response = call_next()
+                raise HTTPException(status_code=401,detail="Unauthorized")
+        response = call_next(request)
         return response
-        
+
     
+    @app.exception_handler(HTTPException)
+    def httpexception_handler(exc: HTTPException):
+        return JSONResponse(status_code=exc.status_code, content={'message': exc.detail}) 
     
     return app
 
