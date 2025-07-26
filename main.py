@@ -6,10 +6,18 @@ from database.session import Base, session,engine
 from middlewares.JwtMiddleware import JwtMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
+from config import secret_key
+import logging
 import uvicorn
 import jwt
 
+
+
 denied = ("/api/post")
+
+logging.basicConfig(filename="new_log.log", format="%(asctime)s %(message)s", filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 def app() -> FastAPI:
     app = FastAPI(root_path='/api')
@@ -28,12 +36,12 @@ def app() -> FastAPI:
     def JWTMiddleware(request: Request, call_next):
         if request.url.path.startswith(denied):
             try:
-                cookie = request.cookies.get("jwt")
+                cookie = str(request.cookies.get("jwt"))
                 if cookie == None:
                     raise HTTPException(status_code=401, detail="Unauthorized")
-                username = jwt.decode(cookie.encode(), secret_key, algorithm="HS256")
+                username = jwt.decode(cookie.encode(), secret_key, algorithms="HS256")['username']
                 request.state.user = username
-            except jwt.PyJWTError:
+            except jwt.PyJwtError:
                 raise HTTPException(status_code=401,detail="Unauthorized")
         response = call_next(request)
         return response
