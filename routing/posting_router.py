@@ -9,7 +9,6 @@ import datetime
 
 router = APIRouter(prefix="/post")
 
-
 @router.post("/create")
 def create_post(text: str, request: Request, service: ret_post_service = Depends()) -> Optional[Post]:
     username = request.state.user
