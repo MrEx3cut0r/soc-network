@@ -9,7 +9,6 @@ import datetime
 
 router = APIRouter(prefix="/post")
 
-
 @router.post("/create")
 def create_post(text: str, request: Request, service: ret_post_service = Depends()) -> Optional[Post]:
     username = request.state.user
@@ -30,3 +29,8 @@ def get_my(request: Request, service: ret_post_service = Depends()) -> List[Post
     username = request.state.user
     my = service.findByUsername(username)
     return my
+
+@router.get('/{username}')
+def get_user(username: str, service: ret_post_service = Depends()) -> List[Post]:
+    posts = service.findByUsername(username)
+    return posts
