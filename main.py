@@ -3,7 +3,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from routing.auth_router import router as auth_router
 from routing.posting_router import router as posting_router
 from database.session import Base, session,engine
-from middlewares.JwtMiddleware import JwtMiddleware
 import uvicorn
 import jwt
 
@@ -33,7 +32,7 @@ def app() -> FastAPI:
                 request.state.user = username
             except jwt.PyJWTError:
                 raise HTTPException(status_code=401, detail="Unauthorized")
-        response = call_next()
+        response = call_next(request)
         return response
         
     
