@@ -36,22 +36,22 @@ class user_repository:
         
     @connection
     def search_user(self, username: str) -> Optional[user_dto] | bool:
-        redis_user = self.RedisClient.get_user(username)
+        redis_user = self.RedisClient.get(username)
         if redis_user:
             return redis_user
         user = self.session.query(user_table).filter_by(username=username).first()
         if user:
-            self.RedisClient.set_user(username)
+            self.RedisClient.set(username, user)
             return user
         return False
         
     @connection
     def validate_password(self, username, password) -> Optional[bool] | None:
-        user = self.RedisClient.get_user(username)
+        user = self.RedisClient.get(username)
         if not user:
             user = self.session.query(user_table).filter_by(username=username).first()
         if user:
-            self.RedisClient.set_user(user)
+            self.RedisClient.set(user.username, user)
             if fernet.decrypt(user.password).decode() == password:
                 return True
             return False  

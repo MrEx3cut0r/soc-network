@@ -3,11 +3,14 @@ from database.session import connection
 from typing import Optional, List
 from tables.posts_table import posts_table
 from database.session import session
+from repositories.redis_repository import redis_repository
+from database.redis_enter import client
 
 class post_repository():
     def __init__ (self, session) -> None:
         self.session = session
-    
+        self.RedisClient = redis_repository(client)
+        
     @connection
     def create(self, post: Post) -> Optional[Post]:
         # giving 'post' arguments to posts_table using '**'
@@ -20,6 +23,7 @@ class post_repository():
     def delete(self, id: int) -> Optional[bool]:
         found_post = self.session.query(posts_table).filter_by(id=id).first()
         if found_post:
+            self.RedisClient.delete(id)
             self.session.delete(found_post)
             self.session.commit()
             return True
@@ -32,9 +36,15 @@ class post_repository():
     
     @connection
     def findById(self, id: int) -> Optional[Post]:
+        post = self.RedisClient.get(id)
+        
+        if post:
+            return post
+        
         post = self.session.query(posts_table).filter_by(id=id).first()
         if post:
-           return post
+            self.RedisClient.set(post.id, post)
+            return post
         return False
 
 def get_post_repository() -> post_repository:
