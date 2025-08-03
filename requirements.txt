@@ -4,3 +4,4 @@ logging
 sqlalchemy
 uvicorn
 pyjwt
+fernet
