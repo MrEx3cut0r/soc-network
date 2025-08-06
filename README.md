@@ -6,5 +6,5 @@
 
 - **GET /post/me**: get all your posts
 - **POST /post/create**: Create new post
-- **GET /post/{username}**: get posts by username
 - **DELETE /post/{id}**: delete post by post id
+- **GET /users/{id}**: get user by id
