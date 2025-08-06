@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from routing.auth_router import router as auth_router
 from routing.posting_router import router as posting_router
+from routing.user_router import router as user_router
 from database.session import Base, session,engine
 from fastapi.responses import JSONResponse
 from fastapi.middleware.gzip import GZipMiddleware
@@ -12,12 +13,13 @@ import jwt
 
 
 
-denied = ("/api/post")
+denied = ("/api/post", "/api/users")
 
 def app() -> FastAPI:
     app = FastAPI(root_path='/api')
     app.include_router(auth_router)
     app.include_router(posting_router)    
+    app.include_router(user_router)
 
     @app.on_event('startup')
     def startup():

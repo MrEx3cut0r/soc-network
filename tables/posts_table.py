@@ -10,6 +10,6 @@ class posts_table(Base):
     when = Column(String, nullable=False)
     
     def __repr__(self):
-        return f"by {username}, {when}\n{text}"
+        return f"by {self.username}, {self.when}\n{self.text}"
         
        

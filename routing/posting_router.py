@@ -16,7 +16,7 @@ def create_post(text: str, request: Request, service: ret_post_service = Depends
     new_post = Post(username=username, text=text, when=now)
     return service.create(new_post)
     
-@router.delete('/delete/{id}')
+@router.delete('/{id}')
 def delete_post(id: int, request: Request, service: ret_post_service = Depends()) -> Optional[Post] | str:
     username = request.state.user
     post = service.findById(id)
@@ -29,8 +29,3 @@ def get_my(request: Request, service: ret_post_service = Depends()) -> List[Post
     username = request.state.user
     my = service.findByUsername(username)
     return my
-
-@router.get('/{username}')
-def get_user(username: str, service: ret_post_service = Depends()) -> List[Post]:
-    posts = service.findByUsername(username)
-    return posts
