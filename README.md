@@ -8,3 +8,6 @@
 - **POST /post/create**: Create new post
 - **DELETE /post/{id}**: delete post by post id
 - **GET /users/{id}**: get user by id
+- **POST /users/subscribe**: subscribe user
+- **POST /users/unsubscribe**: unsubscribe user
+
