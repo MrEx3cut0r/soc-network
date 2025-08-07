@@ -7,6 +7,8 @@ from cryptography.fernet import Fernet
 from config import secret_key
 from repositories.redis_repository import redis_repository
 from database.redis_enter import client
+from dtos.subscribe import subscribe
+from tables.subscribers_table import subscribers_table
 
 fernet = Fernet(secret_key.encode())
 class user_repository:

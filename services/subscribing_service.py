@@ -6,6 +6,9 @@ class subscribing_service:
 	def __init__(self, repository: subscribing_repository) -> None:
 		self.repository = repository
 
+	def create_profile(self, username: str) -> None:
+		return self.repository.create_profile(username)
+
 	def subscribe(self, to: str, current: str) -> Optional[subscribe]:
 		return self.repository.subscribe(to, current)
 

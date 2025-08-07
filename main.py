@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
+from services.user_service import ret_user_service
 from starlette.middleware.base import BaseHTTPMiddleware
 from routing.auth_router import router as auth_router
 from routing.posting_router import router as posting_router
@@ -32,19 +33,22 @@ def app() -> FastAPI:
     # works if some exception raised, outputs it to client
     @app.exception_handler(HTTPException)
     def exception_handler(exc: HTTPException):
-        return exc(status_code=exc.status_code, detail=exc.detail)
+        return JSONResponse(status_code=exc.status_code, detail=exc.detail)
 
     @app.middleware("http")
     def JWTMiddleware(request: Request, call_next):
+        service =  ret_user_service()
         if request.url.path.startswith(denied):
             try:
                 cookie = request.cookies.get("jwt")
                 if cookie == None:
-                    raise HTTPException(status_code=401, detail="Unauthorized")
+                    raise jwt.pyJWTError
                 username = jwt.decode(cookie.encode(), secret_key, algorithms="HS256")['username']
+                if service.search_user(username) == False:
+                    raise jwt.PyJWTError
                 request.state.user = username
                 return call_next(request)
-            except HTTPException:
+            except jwt.PyJWTError:
                 raise HTTPException(status_code=401, detail="Unauthorized")
         response = call_next(request)
         return response
